@@ -1,3 +1,4 @@
+#%% loading stuff
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import normalize
@@ -24,13 +25,14 @@ features = normalize(data.data,axis=0)
 # split in traning and testing
 x_train, x_test, y_train, y_test = train_test_split(features, y, test_size=0.33, random_state=42)
 
-
+#%% Important stuff
 # Parameters
-layer_sizes = [64,10]
+layer_sizes = [64,10,10]
 epochs = 1000
 lr = 0.02
 accuracy_freq = 1
 test_int = 20
+dropout_rate = 0.2
 
 # Variables
 errors = []
@@ -66,10 +68,14 @@ def train(data, labels, epochs,t_data,t_labels):
         for i in range(len(weights)):
             layer_output.append(afunc(layer_output[i].dot(weights[i])))
 
+        # Dropout
+   #     for i in range(1,len(layer_output)-1):
+    #        layer_output[i] *= np.random.binomial(1,1-dropout_rate,layer_output[i].shape)*(1/(1-dropout_rate))
+
         # Error calculation
         error = 1 / 2 * (layer_output[-1] - y_train) ** 2
         sum_error = np.sum(error)
-        errors.append(sum_error)
+        errors.append(sum_error/len(labels))
 
         # Gradient calculation
         gradients = []
@@ -106,7 +112,7 @@ def train(data, labels, epochs,t_data,t_labels):
             # Error
             error = 1 / 2 * (layer_output[-1] - y_test) ** 2
             sum_error = np.sum(error)
-            t_errors.append(sum_error)
+            t_errors.append(sum_error/len(t_labels))
             # Sample_point
             t_sample_points.append((y))
 
@@ -130,9 +136,11 @@ def confusionMatrix(features,labels,title=None):
 def plots():
     plt.plot(sample_points,errors)
     plt.plot(t_sample_points,t_errors)
+    plt.title("Error")
     plt.show()
     plt.plot(sample_points,accuracies)
     plt.plot(t_sample_points,t_accuracies)
+    plt.title("Accuracy")
     plt.show()
     return None
 
@@ -142,3 +150,6 @@ train(x_train,y_train,epochs,x_test,y_test)
 confusionMatrix(x_train,y_train,"Training data")
 confusionMatrix(x_test,y_test,"Test data")
 plots()
+
+print("training accuracy:   ",accuracies[-1])
+print("test accuracy:       ",t_accuracies[-1])
