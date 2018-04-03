@@ -24,8 +24,8 @@ x_train, x_test, y_train, y_test = train_test_split(features, y, test_size=0.33,
 
 
 # Parameters
-layer_sizes = [64,64,10]
-epochs = 300
+layer_sizes = [64,10]
+epochs = 1000
 lr = 0.02
 accuracy_freq = 1
 
@@ -47,7 +47,7 @@ def afuncDerivative(x):
 # Initialization of weights
 weights = []
 for i in range(1, len(layer_sizes)):
-    weights.append(2 * np.random.normal(0,0.02,(layer_sizes[i - 1], layer_sizes[i])) - 1)
+    weights.append(np.random.normal(0,1,(layer_sizes[i - 1], layer_sizes[i])))
 
 
 # Training function
@@ -74,14 +74,14 @@ def train(data, labels, epochs):
 
         # Update weights
         for i in range(len(weights)):
-            weights[i] = weights[i]-lr*layer_output[i].T.dot(layer_output[i + 1])
+            weights[i] = weights[i]+lr*layer_output[i].T.dot(gradients[i])
 
-        if y%accuracy_freq==0:
+        if y%accuracy_freq == 0:
             correct = 0
-            for i in range(len(layer_output)):
-                if layer_output[i].argmax() == np.array(labels[i]).argmax():
+            for i in range(len(layer_output[-1])):
+                if layer_output[-1][i].argmax() == np.array(labels[i]).argmax():
                     correct += 1
-            accuracy = correct/len(layer_output)
+            accuracy = correct/len(layer_output[-1])
             accuracies.append(accuracy)
 
 
@@ -92,7 +92,7 @@ train(x_train,y_train,epochs)
 
 print()
 print()
-for x in range(50):
+for x in range(300):
     print(accuracies[x])
 
 plt.plot(errors)
