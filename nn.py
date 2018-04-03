@@ -19,20 +19,21 @@ for x in data.target:
     y.append(r)
 y = np.array(y)
 
+
 # Normalize features
 features = normalize(data.data,axis=0)
 
 # split in traning and testing
 x_train, x_test, y_train, y_test = train_test_split(features, y, test_size=0.33, random_state=42)
 
-#%% Important stuff
-# Parameters
+
+#%% Parameters
 layer_sizes = [64,10,10]
 epochs = 1000
 lr = 0.02
 accuracy_freq = 1
 test_int = 20
-dropout_rate = 0.2
+dropout_rate = 0.1
 
 # Variables
 errors = []
@@ -69,8 +70,8 @@ def train(data, labels, epochs,t_data,t_labels):
             layer_output.append(afunc(layer_output[i].dot(weights[i])))
 
         # Dropout
-   #     for i in range(1,len(layer_output)-1):
-    #        layer_output[i] *= np.random.binomial(1,1-dropout_rate,layer_output[i].shape)*(1/(1-dropout_rate))
+        for i in range(1,len(layer_output)-1):
+            layer_output[i] *= np.random.binomial(1,1-dropout_rate,layer_output[i].shape)*(1/(1-dropout_rate))
 
         # Error calculation
         error = 1 / 2 * (layer_output[-1] - y_train) ** 2
