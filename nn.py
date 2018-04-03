@@ -4,6 +4,7 @@ from sklearn.preprocessing import normalize
 import numpy as np
 import matplotlib.pyplot as plt
 
+# seed random
 np.random.seed(42)
 
 # Import dataset
@@ -15,6 +16,7 @@ for x in data.target:
     r = [0,0,0,0,0,0,0,0,0,0]
     r[x] = 1
     y.append(r)
+y = np.array(y)
 
 # Normalize features
 features = normalize(data.data,axis=0)
@@ -85,17 +87,29 @@ def train(data, labels, epochs):
             accuracies.append(accuracy)
 
 
+def confusionMatrix(features,labels):
+    # Calculates the values of each neuron in each layer
+    layer_output = []
+    layer_output.append(features)
+    for i in range(len(weights)):
+        layer_output.append(afunc(layer_output[i].dot(weights[i])))
+
+    # make matrix
+    array = np.zeros((10,10))
+    for i in range(len(layer_output[-1])):
+        array[layer_output[-1][i].argmax()][labels[i].argmax()] += 1
+    # Print plot
+    plt.matshow(array)
+    plt.show()
+    return None
+
+def plots():
+    plt.plot(errors)
+    plt.show()
+    plt.plot(accuracies)
+    plt.show()
+    return None
 
 train(x_train,y_train,epochs)
-#for x in range(50):
-#    print(errors[x])
-
-print()
-print()
-for x in range(300):
-    print(accuracies[x])
-
-plt.plot(errors)
-plt.show()
-plt.plot(accuracies)
-plt.show()
+confusionMatrix(x_train,y_train)
+plots()
