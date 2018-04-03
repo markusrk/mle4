@@ -30,10 +30,15 @@ layer_sizes = [64,10]
 epochs = 1000
 lr = 0.02
 accuracy_freq = 1
+test_int = 20
 
 # Variables
 errors = []
 accuracies = []
+t_errors = []
+t_accuracies = []
+sample_points = np.linspace(0,epochs,epochs)
+t_sample_points = []
 
 
 # Activation function, should be the logistic function
@@ -53,7 +58,7 @@ for i in range(1, len(layer_sizes)):
 
 
 # Training function
-def train(data, labels, epochs):
+def train(data, labels, epochs,t_data,t_labels):
     for y in range(epochs):
         # Calculates the values of each neuron in each layer
         layer_output = []
@@ -77,7 +82,7 @@ def train(data, labels, epochs):
         # Update weights
         for i in range(len(weights)):
             weights[i] = weights[i]+lr*layer_output[i].T.dot(gradients[i])
-
+        # Sample accuracy
         if y%accuracy_freq == 0:
             correct = 0
             for i in range(len(layer_output[-1])):
@@ -85,9 +90,27 @@ def train(data, labels, epochs):
                     correct += 1
             accuracy = correct/len(layer_output[-1])
             accuracies.append(accuracy)
+        # Sample test error and accuracy
+        if y%test_int == 0:
+            layer_output = []
+            layer_output.append(t_data)
+            for i in range(len(weights)):
+                layer_output.append(afunc(layer_output[i].dot(weights[i])))
+            # Accuracy
+            correct = 0
+            for i in range(len(layer_output[-1])):
+                if layer_output[-1][i].argmax() == np.array(t_labels[i]).argmax():
+                    correct += 1
+            accuracy = correct / len(layer_output[-1])
+            t_accuracies.append(accuracy)
+            # Error
+            error = 1 / 2 * (layer_output[-1] - y_test) ** 2
+            sum_error = np.sum(error)
+            t_errors.append(sum_error)
+            # Sample_point
+            t_sample_points.append((y))
 
-
-def confusionMatrix(features,labels):
+def confusionMatrix(features,labels,title=None):
     # Calculates the values of each neuron in each layer
     layer_output = []
     layer_output.append(features)
@@ -100,16 +123,22 @@ def confusionMatrix(features,labels):
         array[layer_output[-1][i].argmax()][labels[i].argmax()] += 1
     # Print plot
     plt.matshow(array)
+    if title: plt.title(title)
     plt.show()
     return None
 
 def plots():
-    plt.plot(errors)
+    plt.plot(sample_points,errors)
+    plt.plot(t_sample_points,t_errors)
     plt.show()
-    plt.plot(accuracies)
+    plt.plot(sample_points,accuracies)
+    plt.plot(t_sample_points,t_accuracies)
     plt.show()
     return None
 
-train(x_train,y_train,epochs)
-confusionMatrix(x_train,y_train)
+
+
+train(x_train,y_train,epochs,x_test,y_test)
+confusionMatrix(x_train,y_train,"Training data")
+confusionMatrix(x_test,y_test,"Test data")
 plots()
